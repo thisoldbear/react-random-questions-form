@@ -12,7 +12,7 @@ const errorStyle = {
 const renderDynamicQuestions = (questions, handleChange) =>
   Object.entries(questions).map((question) => {
     const [id, {
-      label, required, invalid, value,
+      label, required, value, errorMessage,
     }] = question;
     return (
       <div key={id} style={fieldStyle}>
@@ -23,7 +23,7 @@ const renderDynamicQuestions = (questions, handleChange) =>
           </label>
         </div>
         <input type="text" name={id} onChange={handleChange} value={value} />
-        {invalid && <div style={errorStyle}>Enter a value</div>}
+        {errorMessage && <div style={errorStyle}>{errorMessage}</div>}
       </div>
     );
   });

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import * as Yup from 'yup';
 import DynamicQuestions from '../dynamic-questions';
 
 /**
@@ -14,17 +15,37 @@ const encode = data =>
 class Form extends React.Component {
   state = {};
 
+  dynamicSchema = {};
+
   componentDidMount() {
     const { systemQuestions, randomQuestions } = this.props;
 
-    const questions = [...systemQuestions, ...randomQuestions]
+    const questionConfig = [...systemQuestions, ...randomQuestions];
+
+    const questionsSchema = questionConfig
+      .map(({ node }) => ({ ...node }))
+      .reduce(
+        (acc, { id, required }) => ({
+          ...acc,
+          ...(required && {
+            [id]: Yup.object().shape({
+              value: Yup.string('Enter a string').required('This is required'),
+            }),
+          }),
+        }),
+        {},
+      );
+
+    this.dynamicSchema = Yup.object().shape(questionsSchema);
+
+    const stateQuestions = questionConfig
       .map(({ node }) => ({ ...node }))
       .reduce(
         (acc, { id, ...rest }) => ({
           ...acc,
           [id]: {
             value: '',
-            invalid: false,
+            errorMessage: '',
             ...rest,
           },
         }),
@@ -32,7 +53,7 @@ class Form extends React.Component {
       );
 
     this.setState({
-      questions,
+      questions: stateQuestions,
     });
   }
 
@@ -43,54 +64,53 @@ class Form extends React.Component {
         [name]: {
           ...this.state.questions[name],
           value,
-          invalid: !value,
+          errorMessage: '',
         },
       },
     });
   };
 
-  handleSubmit = (e) => {
+  handleSubmit = async (e) => {
     e.preventDefault();
 
-    const invalidQuestions = Object.entries(this.state.questions)
-      .reduce((acc, [id, { required, value }]) => (required && !value ? [id, ...acc] : acc), [])
-      .reduce(
-        (acc, curr) => ({
-          [curr]: {
-            ...this.state.questions[curr],
-            invalid: true,
-          },
-          ...acc,
-        }),
-        {},
-      );
-
-    this.setState({
-      questions: {
-        ...this.state.questions,
-        ...invalidQuestions,
-      },
-    });
-
-    if (!Object.entries(invalidQuestions).length) {
-      const formValues = Object.entries(this.state.questions).reduce(
-        (acc, [id, { value }]) => ({
-          [id]: value,
-          ...acc,
-        }),
-        {},
-      );
-
-      const body = encode({ 'form-name': 'contact', ...formValues });
-
-      fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body,
+    await this.dynamicSchema
+      .validate(this.state.questions, {
+        abortEarly: false,
       })
-        .then(() => alert('Success! Check your network'))
-        .catch(error => alert(error));
-    }
+      .then(() => {
+        const formValues = Object.entries(this.state.questions).reduce(
+          (acc, [id, { value }]) => ({
+            [id]: value,
+            ...acc,
+          }),
+          {},
+        );
+
+        const body = encode({ 'form-name': 'contact', ...formValues });
+
+        fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body,
+        })
+          .then(() => alert('Success! Check your network'))
+          .catch(error => alert(error));
+      })
+      .catch((err) => {
+        err.inner.map((fieldErrorObject) => {
+          const fieldName = fieldErrorObject.params.path.split('.')[0];
+
+          this.setState({
+            questions: {
+              ...this.state.questions,
+              [fieldName]: {
+                ...this.state.questions[fieldName],
+                errorMessage: fieldErrorObject.message,
+              },
+            },
+          });
+        });
+      });
   };
 
   renderFields = questions => (
