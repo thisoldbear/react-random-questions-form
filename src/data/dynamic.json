@@ -1,0 +1,32 @@
+[
+  {
+    "id": "random-question-1",
+    "label": "Random Question 1",
+    "required": true
+  },
+  {
+    "id": "random-question-2",
+    "label": "Random Question 2",
+    "required": true
+  },
+  {
+    "id": "random-question-3",
+    "label": "Random Question 3",
+    "required": true
+  },
+  {
+    "id": "random-question-4",
+    "label": "Random Question 4",
+    "required": false
+  },
+  {
+    "id": "random-question-5",
+    "label": "Random Question 5",
+    "required": false
+  },
+  {
+    "id": "random-question-6",
+    "label": "Random Question 6",
+    "required": true
+  }
+]
