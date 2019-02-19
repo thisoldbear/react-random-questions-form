@@ -1,32 +1,38 @@
 [
   {
-    "id": "random-question-1",
+    "id": "randomQuestion1",
     "label": "Random Question 1",
-    "required": true
+    "required": true,
+    "type": "text"
   },
   {
-    "id": "random-question-2",
+    "id": "randomQuestion2",
     "label": "Random Question 2",
-    "required": true
+    "required": true,
+    "type": "text"
   },
   {
-    "id": "random-question-3",
+    "id": "randomQuestion3",
     "label": "Random Question 3",
-    "required": true
+    "required": true,
+    "type": "text"
   },
   {
-    "id": "random-question-4",
+    "id": "randomQuestion4",
     "label": "Random Question 4",
-    "required": false
+    "required": false,
+    "type": "text"
   },
   {
-    "id": "random-question-5",
+    "id": "randomQuestion5",
     "label": "Random Question 5",
-    "required": false
+    "required": false,
+    "type": "text"
   },
   {
-    "id": "random-question-6",
+    "id": "randomQuestion6",
     "label": "Random Question 6",
-    "required": true
+    "required": true,
+    "type": "text"
   }
 ]

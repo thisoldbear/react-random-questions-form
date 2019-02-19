@@ -2,11 +2,13 @@
   {
     "id": "name",
     "label": "Name",
-    "required": true
+    "required": true,
+    "type": "text"
   },
   {
     "id": "email",
     "label": "Email",
-    "required": true
+    "required": true,
+    "type": "email"
   }
 ]

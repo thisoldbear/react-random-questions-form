@@ -1,44 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
+import { createMainSchema } from '../../utils/createSchema';
+import encode from '../../utils/encode';
 import DynamicQuestions from '../dynamic-questions';
-
-/**
- * Encode the form data for POST to Netlify
- * See link in README.md for integrating forms in React and Netlify
- */
-const encode = data =>
-  Object.keys(data)
-    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
-    .join('&');
 
 class Form extends React.Component {
   state = {};
 
-  dynamicSchema = {};
+  validationSchema = {};
 
   componentDidMount() {
     const { systemQuestions, randomQuestions } = this.props;
 
     const questionConfig = [...systemQuestions, ...randomQuestions];
 
-    const questionsSchema = questionConfig
-      .map(({ node }) => ({ ...node }))
-      .reduce(
-        (acc, { id, required }) => ({
-          ...acc,
-          ...(required && {
-            [id]: Yup.object().shape({
-              value: Yup.string('Enter a string').required('This is required'),
-            }),
-          }),
-        }),
-        {},
-      );
+    // Create the schema object
+    const questionSchema = createMainSchema(questionConfig);
 
-    this.dynamicSchema = Yup.object().shape(questionsSchema);
+    // Add the question schema
+    this.validationSchema = Yup.object().shape(questionSchema);
 
-    const stateQuestions = questionConfig
+    // Shape questions for state
+    const questions = questionConfig
       .map(({ node }) => ({ ...node }))
       .reduce(
         (acc, { id, ...rest }) => ({
@@ -53,7 +37,7 @@ class Form extends React.Component {
       );
 
     this.setState({
-      questions: stateQuestions,
+      questions,
     });
   }
 
@@ -73,7 +57,7 @@ class Form extends React.Component {
   handleSubmit = async (e) => {
     e.preventDefault();
 
-    await this.dynamicSchema
+    await this.validationSchema
       .validate(this.state.questions, {
         abortEarly: false,
       })

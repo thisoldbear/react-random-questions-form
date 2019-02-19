@@ -56,6 +56,7 @@ export const IndexQuery = graphql`
           id
           label
           required
+          type
         }
       }
     }
@@ -65,6 +66,7 @@ export const IndexQuery = graphql`
           id
           label
           required
+          type
         }
       }
     }
