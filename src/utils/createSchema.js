@@ -1,15 +1,17 @@
 import * as Yup from 'yup';
 
-export const createFieldSchema = (type) => {
+export const createFieldSchema = (type, required) => {
+  const decorate = schema => (required ? schema.required('Required') : schema);
+
   switch (type) {
-    case 'email':
-      return Yup.string()
-        .email('Please enter a valid email')
-        .required('Please enter an email');
-
-    case 'text':
-      return Yup.string().required('This is required');
-
+    case 'email': {
+      const emailSchema = Yup.string().email('Please enter a valid email');
+      return decorate(emailSchema);
+    }
+    case 'text': {
+      const textSchema = Yup.string();
+      return decorate(textSchema);
+    }
     default:
       return '';
   }
@@ -21,10 +23,8 @@ export const createMainSchema = questionConfig =>
     .reduce(
       (acc, { id, required, type }) => ({
         ...acc,
-        ...(required && {
-          [id]: Yup.object().shape({
-            value: createFieldSchema(type),
-          }),
+        [id]: Yup.object().shape({
+          value: createFieldSchema(type, required),
         }),
       }),
       {},
